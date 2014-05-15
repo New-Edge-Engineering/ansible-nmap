@@ -1,0 +1,51 @@
+---
+- name: ensure nmap is at the latest version
+  apt: pkg=nmap state=latest update_cache=yes
+  tags:
+    - nmap
+    - packages
+
+- name: ensuring daily nmap tcp report is schedule with cron
+  cron:
+    name="nmap tcp report"
+    minute="0"
+    hour="0"
+    job="nmap -v -sT localhost > /var/log/nmap-tcp.log  2>&1"
+  tags:
+    - nmap
+    - cron
+
+- name: ensuring daily nmap syn report is schedule with cron
+  cron:
+    name="nmap syn report"
+    minute="0"
+    hour="0"
+    job="nmap -v -sS localhost > /var/log/nmap-syn.log  2>&1"
+  tags:
+    - nmap
+    - cron
+
+- name: ensure nmap tcp logrotation configuration is in place
+  copy:
+    dest=/etc/logrotate.d/nmap-tcp
+    src=logrotate-tcp.conf
+    owner=root
+    group=root
+    mode=644
+  tags:
+    - nmap
+    - log
+
+- name: ensure nmap tcp logrotation configuration is in place
+  copy:
+    dest=/etc/logrotate.d/nmap-syn
+    src=logrotate-syn.conf
+    owner=root
+    group=root
+    mode=644
+  tags:
+    - nmap
+    - log
+
+# REFERENCES:
+# Ubuntu step 15 hardening from http://www.thefanclub.co.za/how-to/how-secure-ubuntu-1204-lts-server-part-1-basics
